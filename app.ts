@@ -1,3 +1,4 @@
+//import libraries
 import * as express from 'express';
 import * as path from 'path';
 import * as favicon from 'serve-favicon';
@@ -5,11 +6,19 @@ import * as logger from 'morgan';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 import * as ejs from 'ejs';
+import * as passport from 'passport';
+const bearerToken = require('express-bearer-token');
+const expressValidator = require("express-validator");
 
+//import routes
 import routes from './routes/index';
 import users from './routes/users';
+import userRoute from './routes/userRoute';
 
 let app = express();
+
+//establish connection to database
+import Database from './db';
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -17,6 +26,11 @@ app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(bearerToken());
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(expressValidator());
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -28,6 +42,7 @@ app.use('/api', express.static(path.join(__dirname, 'api')));
 
 app.use('/', routes);
 app.use('/users', users);
+app.use('/api/users', userRoute);
 
 
 // redirect 404 to home for the sake of AngularJS client-side routes
